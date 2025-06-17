@@ -1,6 +1,6 @@
 import tkinter as tk
 import methods
-from tkinter import simpledialog, messagebox
+from tkinter import messagebox
 
 
 class TableEditor:
@@ -15,11 +15,9 @@ class TableEditor:
         self.main_frame = tk.Frame(self.root)
         self.main_frame.pack(fill="both", expand=True)
 
-        # Górny frame dla przycisków + wyników
         self.top_frame = tk.Frame(self.main_frame)
         self.top_frame.pack(side="top", fill="x")
 
-        # Panel przycisków po lewej (w top_frame)
         self.control_frame = tk.Frame(self.top_frame)
         self.control_frame.pack(side="left", padx=10, pady=10, anchor="n")
 
@@ -38,14 +36,13 @@ class TableEditor:
         self.calc_btn = tk.Button(self.control_frame, text="Oblicz", command=self.calculate)
         self.calc_btn.pack(fill="x", pady=10)
 
-        # Panel wyników po prawej w top_frame, ale teraz jako LabelFrame z tytułem "Wyniki"
         self.results_frame = tk.LabelFrame(self.top_frame, padx=10, pady=10)
         self.results_frame.pack(side="left", padx=10, pady=10, anchor="n")
 
         self.result_labels = []
         self.result_entries = []
-        labels = ['Płn-zach kąt', 'Min w wierszu', 'Min w kolumnie', 'VAM', 'Potencjały']
-        for i in range(5):
+        labels = ['Płn-zach kąt', 'Min w wierszu', 'Min w kolumnie', 'VAM']
+        for i in range(len(labels)):
             row = tk.Frame(self.results_frame)
             row.pack(fill="x", pady=2)
             label = tk.Label(row, text=labels[i], width=12, anchor="w", relief="groove", bd=2, padx=5, pady=2)
@@ -55,7 +52,6 @@ class TableEditor:
             self.result_labels.append(label)
             self.result_entries.append(entry)
 
-        # Tabela poniżej top_frame, rozciągnięta na szerokość
         self.table_frame = tk.Frame(self.main_frame)
         self.table_frame.pack(side="top", fill="both", expand=True, padx=10, pady=10)
 
@@ -70,30 +66,22 @@ class TableEditor:
 
             if sum_podaz > sum_popyt:
                 roznica = sum_podaz - sum_popyt
-                self.add_col()  # dodaje nową kolumnę
+                self.add_col()
 
-                # Wpisujemy różnicę do ostatniego wiersza (popyt)
                 self.entries[-1][self.cols - 1].delete(0, tk.END)
                 self.entries[-1][self.cols - 1].insert(0, str(roznica))
 
             elif sum_popyt > sum_podaz:
                 roznica = sum_popyt - sum_podaz
-                self.add_row()  # dodaje nowy wiersz
+                self.add_row()
 
-                # Wpisujemy różnicę do ostatniej kolumny nowego wiersza (podaż)
                 self.entries[-2][self.cols].delete(0, tk.END)
                 self.entries[-2][self.cols].insert(0, str(roznica))
-
-            # self.update_sums()
 
         except ValueError:
             messagebox.showerror("Błąd", "Nieprawidłowe dane w tabeli")
 
     def calculate(self):
-        # for i, entry in enumerate(self.result_entries):
-        #     entry.delete(0, tk.END)
-        #     entry.insert(0, str(i * 10))
-
         data = self.get_values()
         popyt_odbiorcy = [float(val) for val in data[-1]]
         podaz_dostawcy = [float(row[-1]) for row in data[:-1]]
@@ -108,14 +96,16 @@ class TableEditor:
         result_1 = methods.method_1(macierz_kosztow, popyt_odbiorcy, podaz_dostawcy)
         result_2 = methods.method_2(macierz_kosztow, popyt_odbiorcy, podaz_dostawcy)
         result_3 = methods.method_3(macierz_kosztow, popyt_odbiorcy, podaz_dostawcy)
+        result_4 = methods.method_4(macierz_kosztow, popyt_odbiorcy, podaz_dostawcy)
 
         self.result_entries[0].delete(0, tk.END)
-        self.result_entries[0].insert(0, str(result_1))
+        self.result_entries[0].insert(0, str(int(round(result_1))))
         self.result_entries[1].delete(0, tk.END)
-        self.result_entries[1].insert(0, str(result_2))
+        self.result_entries[1].insert(0, str(int(round(result_2))))
         self.result_entries[2].delete(0, tk.END)
-        self.result_entries[2].insert(0, str(result_3))
-
+        self.result_entries[2].insert(0, str(int(round(result_3))))
+        self.result_entries[3].delete(0, tk.END)
+        self.result_entries[3].insert(0, str(int(round(result_4))))
 
     def validate_entry(self, value):
         if value == "" or value == "-":
@@ -132,20 +122,18 @@ class TableEditor:
         self.entries = []
 
         domyslne_koszty = [
-            [50,40,50,20],
+            [50, 40, 50, 20],
             [40, 80, 70, 30],
             [60, 40, 70, 80]
         ]
         domyslne_podaze = [70, 50, 80]
         domyslne_popyt = [40, 60, 50, 50]
 
-        # Nagłówki kolumn O1, O2, ...
         for j in range(self.cols):
             label = tk.Label(self.table_frame, text=f"O{j + 1}", width=10, relief="ridge", bd=2,
                              highlightbackground="black")
             label.grid(row=0, column=j + 1, padx=1, pady=1)
 
-        # Nagłówek ostatniej kolumny
         label = tk.Label(self.table_frame, text="podaż", width=10, relief="ridge", bd=2, highlightbackground="blue",
                          highlightcolor="blue")
         label.grid(row=0, column=self.cols + 1, padx=1, pady=1)
@@ -153,7 +141,6 @@ class TableEditor:
         for i in range(self.rows):
             row_entries = []
 
-            # Etykieta wiersza D1, D2, ...
             label = tk.Label(self.table_frame, text=f"D{i + 1}", width=10, relief="ridge", bd=2,
                              highlightbackground="red", highlightcolor="red")
             label.grid(row=i + 1, column=0, padx=1, pady=1)
@@ -163,86 +150,45 @@ class TableEditor:
                 frame.grid(row=i + 1, column=j + 1, padx=1, pady=1)
                 entry = tk.Entry(frame, width=10, validate='key', validatecommand=self.vcmd, bd=0)
                 entry.pack(fill="both", expand=True)
-                entry.insert(0, str(domyslne_koszty[i][j]))
+                entry.insert(0, "0")
                 row_entries.append(entry)
 
-            # Ostatnia kolumna - bez czarnej obwódki
             frame = tk.Frame(self.table_frame)
             frame.grid(row=i + 1, column=self.cols + 1, padx=1, pady=1)
             entry = tk.Entry(frame, width=10, validate='key', validatecommand=self.vcmd)
             entry.pack(fill="both", expand=True)
-            entry.insert(0, str(domyslne_podaze[i]))
+            entry.insert(0, "0")
             row_entries.append(entry)
 
             self.entries.append(row_entries)
 
-        # Dodatkowy wiersz (ostatni) - bez czarnej obwódki dla kolumny podaż
         bottom_row = []
         for j in range(self.cols):
             frame = tk.Frame(self.table_frame)
             frame.grid(row=self.rows + 1, column=j + 1, padx=1, pady=1)
             entry = tk.Entry(frame, width=10, validate='key', validatecommand=self.vcmd)
             entry.pack(fill="both", expand=True)
-            entry.insert(0, str(domyslne_popyt[j]))
+            entry.insert(0, "0")
             bottom_row.append(entry)
 
-        # Komórka suma ostatniego wiersza
-        # frame = tk.Frame(self.table_frame, bd=2, relief="solid", highlightbackground="red", highlightcolor="red")
-        # frame.grid(row=self.rows + 1, column=self.cols + 1, padx=1, pady=1, sticky="nsew")
-        # self.sum_row_entry = tk.Entry(frame, width=10, state='readonly')
-        # self.sum_row_entry.pack(fill="both", expand=True)
-        #
-        # # Komórka suma ostatniej kolumny
-        # frame2 = tk.Frame(self.table_frame, bd=2, relief="solid", highlightbackground="blue", highlightcolor="blue")
-        # frame2.grid(row=self.rows + 1, column=self.cols + 2, padx=1, pady=1, sticky="nsew")
-        # self.sum_col_entry = tk.Entry(frame2, width=10, state='readonly')
-        # self.sum_col_entry.pack(fill="both", expand=True)
-
-        # Label popyt
         label = tk.Label(self.table_frame, text="popyt", width=10, relief="ridge", bd=2, highlightbackground="red")
         label.grid(row=self.rows + 1, column=0, padx=1, pady=1)
 
-        # # Label suma kolumny
-        # label = tk.Label(self.table_frame, text="suma", width=10, relief="ridge", bd=2, highlightbackground="blue")
-        # label.grid(row=self.rows + 2, column=self.cols + 1, columnspan=2, padx=1, pady=1)
-
         self.entries.append(bottom_row)
-
-        # self.update_sums()
-
-        # Automatically resize the window to fit the new table
         self.root.update_idletasks()
         self.root.geometry("")
-
-    # def update_sums(self):
-    #     try:
-    #         sum_row = sum(int(entry.get()) for entry in self.entries[-1])
-    #         self.sum_row_entry.config(state='normal')
-    #         self.sum_row_entry.delete(0, tk.END)
-    #         self.sum_row_entry.insert(0, str(sum_row))
-    #         self.sum_row_entry.config(state='readonly')
-    #
-    #         sum_col = sum(int(row[-1].get()) for row in self.entries[:-1])
-    #         self.sum_col_entry.config(state='normal')
-    #         self.sum_col_entry.delete(0, tk.END)
-    #         self.sum_col_entry.insert(0, str(sum_col))
-    #         self.sum_col_entry.config(state='readonly')
-    #     except:
-    #         pass
 
     def add_row(self):
         current_data = self.get_values()
         self.rows += 1
         self.draw_table()
 
-        # Odtwórz tylko poprzednie dane (bez nowego wiersza)
         for i in range(len(current_data) - 1):  # bez ostatniego popytu
             for j in range(len(current_data[i])):
                 if i < len(self.entries) and j < len(self.entries[i]):
                     self.entries[i][j].delete(0, tk.END)
                     self.entries[i][j].insert(0, current_data[i][j])
 
-        # Odtwórz popyt (ostatni wiersz)
         for j in range(len(current_data[-1])):
             if j < len(self.entries[-1]):
                 self.entries[-1][j].delete(0, tk.END)
@@ -264,17 +210,14 @@ class TableEditor:
         self.cols += 1
         self.draw_table()
 
-        # Odtwórz dane bez nowej (ostatniej) kolumny
-        for i in range(len(current_data) - 1):  # wiersze dostawców
-            for j in range(len(current_data[i]) - 1):  # kolumny odbiorców (bez podaży)
+        for i in range(len(current_data) - 1):
+            for j in range(len(current_data[i]) - 1):
                 self.entries[i][j].delete(0, tk.END)
                 self.entries[i][j].insert(0, current_data[i][j])
 
-            # kolumna podaży (ostatnia kolumna)
             self.entries[i][self.cols].delete(0, tk.END)
             self.entries[i][self.cols].insert(0, current_data[i][-1])
 
-        # ostatni wiersz – popyt
         for j in range(len(current_data[-1])):
             self.entries[-1][j].delete(0, tk.END)
             self.entries[-1][j].insert(0, current_data[-1][j])
@@ -292,9 +235,3 @@ class TableEditor:
 
     def get_values(self):
         return [[entry.get() for entry in row] for row in self.entries]
-
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = TableEditor(root)
-    root.mainloop()
