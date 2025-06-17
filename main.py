@@ -1,4 +1,4 @@
-import method_1
+import methods
 import interface
 
 
@@ -10,7 +10,7 @@ def print_hi(name):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
 
-    print(f'Method 1: {method_1.result}')
+    # print(f'Method 1: {method_1.result}')
     root = interface.tk.Tk()
     app = interface.TableEditor(root)
     root.mainloop()

@@ -1,5 +1,5 @@
 import tkinter as tk
-import method_1
+import methods
 from tkinter import simpledialog, messagebox
 
 
@@ -15,7 +15,11 @@ class TableEditor:
         self.main_frame = tk.Frame(self.root)
         self.main_frame.pack(fill="both", expand=True)
 
-        self.control_frame = tk.Frame(self.main_frame)
+        # Główna rama z tabelą u góry
+        self.top_frame = tk.Frame(self.main_frame)
+        self.top_frame.pack(side="top", anchor="n", fill="x")
+
+        self.control_frame = tk.Frame(self.top_frame)
         self.control_frame.pack(side="left", anchor="n", padx=10, pady=10)
 
         self.add_row_btn = tk.Button(self.control_frame, text="Dodaj wiersz", command=self.add_row)
@@ -30,33 +34,73 @@ class TableEditor:
         self.remove_col_btn = tk.Button(self.control_frame, text="Usuń kolumnę", command=self.remove_col)
         self.remove_col_btn.pack(fill="x")
 
-        # Dodanie 5 przycisków "Oblicz"
-        for i in range(1, 6):
-            btn = tk.Button(
-                self.control_frame,
-                text=f"Oblicz{i}",
-                command=lambda num=i: self.calculate(num)
-            )
-            btn.pack(fill="x", pady=2)
+        self.calc_btn = tk.Button(self.control_frame, text="Oblicz1", command=self.calculate)
+        self.calc_btn.pack(fill="x", pady=10)
 
-        self.table_frame = tk.Frame(self.main_frame)
+        # Pola m1 - m5 z wynikami
+        self.result_labels = []
+        self.result_entries = []
+        for i in range(5):
+            row = tk.Frame(self.control_frame)
+            row.pack(fill="x", pady=1)
+            label = tk.Label(row, text=f"m{i + 1}", width=4, anchor="w")
+            label.pack(side="left")
+            entry = tk.Entry(row, width=10)
+            entry.pack(side="left", fill="x", expand=True)
+            self.result_labels.append(label)
+            self.result_entries.append(entry)
+
+        self.table_frame = tk.Frame(self.top_frame)
         self.table_frame.pack(side="left", padx=10, pady=10)
 
         self.vcmd = (self.root.register(self.validate_entry), '%P')
 
         self.draw_table()
 
-    def calculate(self, button_num):
-        if button_num == 1:
-            method_1.calculate(self.get_values())
-        elif button_num == 2:
-            method_1.calculate()
-        elif button_num == 3:
-            method_1.calculate()
-        elif button_num == 4:
-            method_1.calculate()
-        elif button_num == 5:
-            method_1.calculate()
+    def check_sums(self, popyt_odbiorcy, podaz_dostawcy):
+        try:
+            sum_popyt = sum(int(x) if x != '' else 0 for x in popyt_odbiorcy)
+            sum_podaz = sum(int(x) if x != '' else 0 for x in podaz_dostawcy)
+
+            if sum_podaz > sum_popyt:
+                roznica = sum_podaz - sum_popyt
+                self.add_col()  # dodaje nową kolumnę
+
+                # Wpisujemy różnicę do ostatniego wiersza (popyt)
+                self.entries[-1][self.cols - 1].delete(0, tk.END)
+                self.entries[-1][self.cols - 1].insert(0, str(roznica))
+
+            elif sum_popyt > sum_podaz:
+                roznica = sum_popyt - sum_podaz
+                self.add_row()  # dodaje nowy wiersz
+
+                # Wpisujemy różnicę do ostatniej kolumny nowego wiersza (podaż)
+                self.entries[-2][self.cols].delete(0, tk.END)
+                self.entries[-2][self.cols].insert(0, str(roznica))
+
+            self.update_sums()
+
+        except ValueError:
+            messagebox.showerror("Błąd", "Nieprawidłowe dane w tabeli")
+
+    def calculate(self):
+        # for i, entry in enumerate(self.result_entries):
+        #     entry.delete(0, tk.END)
+        #     entry.insert(0, str(i * 10))
+
+        data = self.get_values()
+        popyt_odbiorcy = [float(val) for val in data[-1]]
+        podaz_dostawcy = [float(row[-1]) for row in data[:-1]]
+
+        self.check_sums(popyt_odbiorcy, podaz_dostawcy)
+
+        data = self.get_values()
+        macierz_kosztow = [[float(cell) for cell in row[:-1]] for row in data[:-1]]
+        popyt_odbiorcy = [float(val) for val in data[-1]]
+        podaz_dostawcy = [float(row[-1]) for row in data[:-1]]
+        # print(f'macierz kosztow: {macierz_kosztow}')
+
+        methods.method_1(macierz_kosztow, popyt_odbiorcy, podaz_dostawcy)
 
     def validate_entry(self, value):
         if value == "" or value == "-":
@@ -164,22 +208,64 @@ class TableEditor:
             pass
 
     def add_row(self):
+        current_data = self.get_values()
         self.rows += 1
         self.draw_table()
 
+        # Odtwórz tylko poprzednie dane (bez nowego wiersza)
+        for i in range(len(current_data) - 1):  # bez ostatniego popytu
+            for j in range(len(current_data[i])):
+                if i < len(self.entries) and j < len(self.entries[i]):
+                    self.entries[i][j].delete(0, tk.END)
+                    self.entries[i][j].insert(0, current_data[i][j])
+
+        # Odtwórz popyt (ostatni wiersz)
+        for j in range(len(current_data[-1])):
+            if j < len(self.entries[-1]):
+                self.entries[-1][j].delete(0, tk.END)
+                self.entries[-1][j].insert(0, current_data[-1][j])
+
     def remove_row(self):
         if self.rows > 1:
+            current_data = self.get_values()
             self.rows -= 1
             self.draw_table()
+            for i in range(min(len(current_data), self.rows + 1)):
+                for j in range(len(current_data[i])):
+                    if i < len(self.entries) and j < len(self.entries[i]):
+                        self.entries[i][j].delete(0, tk.END)
+                        self.entries[i][j].insert(0, current_data[i][j])
 
     def add_col(self):
+        current_data = self.get_values()
         self.cols += 1
         self.draw_table()
 
+        # Odtwórz dane bez nowej (ostatniej) kolumny
+        for i in range(len(current_data) - 1):  # wiersze dostawców
+            for j in range(len(current_data[i]) - 1):  # kolumny odbiorców (bez podaży)
+                self.entries[i][j].delete(0, tk.END)
+                self.entries[i][j].insert(0, current_data[i][j])
+
+            # kolumna podaży (ostatnia kolumna)
+            self.entries[i][self.cols].delete(0, tk.END)
+            self.entries[i][self.cols].insert(0, current_data[i][-1])
+
+        # ostatni wiersz – popyt
+        for j in range(len(current_data[-1])):
+            self.entries[-1][j].delete(0, tk.END)
+            self.entries[-1][j].insert(0, current_data[-1][j])
+
     def remove_col(self):
         if self.cols > 1:
+            current_data = self.get_values()
             self.cols -= 1
             self.draw_table()
+            for i in range(len(current_data)):
+                for j in range(min(len(current_data[i]), self.cols + 1)):
+                    if i < len(self.entries) and j < len(self.entries[i]):
+                        self.entries[i][j].delete(0, tk.END)
+                        self.entries[i][j].insert(0, current_data[i][j])
 
     def get_values(self):
         return [[entry.get() for entry in row] for row in self.entries]
