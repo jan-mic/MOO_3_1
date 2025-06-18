@@ -23,6 +23,8 @@ def method_1(macierz_kosztow, popyt_odbiorcy, podaz_dostawcy):
 
     result = np.sum(koszty * wagi)
     print(f'Metoda 1 (pln-zach): {result}')
+    print(wagi)
+    print('==================================')
     return result
 
 
@@ -62,6 +64,8 @@ def method_2(macierz_kosztow, popyt_odbiorcy, podaz_dostawcy):
     result = np.sum(koszty * wagi)
 
     print(f"Metoda 2 (min wiersza): {result}")
+    print(wagi)
+    print('==================================')
     return result
 
 
@@ -74,7 +78,6 @@ def method_3(macierz_kosztow, popyt_odbiorcy, podaz_dostawcy):
     wagi = np.zeros((m, n))
     popyt = popyt.copy()
     podaz = podaz.copy()
-
     odwiedzone = np.zeros((m, n), dtype=bool)
 
     while any(popyt) and any(podaz):
@@ -100,5 +103,6 @@ def method_3(macierz_kosztow, popyt_odbiorcy, podaz_dostawcy):
 
     koszt_calkowity = np.sum(wagi * koszt)
     print(f'Metoda 3 (min macierzy): {koszt_calkowity}')
+    print(wagi)
+    print('==================================')
     return koszt_calkowity
-

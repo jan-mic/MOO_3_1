@@ -1,6 +1,6 @@
 import tkinter as tk
-import methods
 from tkinter import messagebox
+import methods
 
 
 class TableEditor:
