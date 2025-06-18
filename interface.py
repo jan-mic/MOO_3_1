@@ -41,7 +41,7 @@ class TableEditor:
 
         self.result_labels = []
         self.result_entries = []
-        labels = ['Płn-zach kąt', 'Min w wierszu', 'Min w macierzy', 'VAM']
+        labels = ['Płn-zach kąt', 'Min w wierszu', 'Min w macierzy']
         for i in range(len(labels)):
             row = tk.Frame(self.results_frame)
             row.pack(fill="x", pady=2)
@@ -96,11 +96,6 @@ class TableEditor:
         result_1 = methods.method_1(macierz_kosztow.copy(), popyt_odbiorcy.copy(), podaz_dostawcy.copy())
         result_2 = methods.method_2(macierz_kosztow.copy(), popyt_odbiorcy.copy(), podaz_dostawcy.copy())
         result_3 = methods.method_3(macierz_kosztow.copy(), popyt_odbiorcy.copy(), podaz_dostawcy.copy())
-        result_4 = methods.method_4(macierz_kosztow.copy(), popyt_odbiorcy.copy(), podaz_dostawcy.copy())
-        # methods.method_22(macierz_kosztow.copy(), popyt_odbiorcy.copy(), podaz_dostawcy.copy())
-        # methods.method_33(macierz_kosztow.copy(), popyt_odbiorcy.copy(), podaz_dostawcy.copy())
-        # methods.metoda_min_w_kolumnie(macierz_kosztow.copy(), popyt_odbiorcy.copy(), podaz_dostawcy.copy())
-        # methods.method_222(macierz_kosztow.copy(), popyt_odbiorcy.copy(), podaz_dostawcy.copy())
 
         self.result_entries[0].delete(0, tk.END)
         self.result_entries[0].insert(0, str(int(round(result_1))))
@@ -108,8 +103,6 @@ class TableEditor:
         self.result_entries[1].insert(0, str(int(round(result_2))))
         self.result_entries[2].delete(0, tk.END)
         self.result_entries[2].insert(0, str(int(round(result_3))))
-        self.result_entries[3].delete(0, tk.END)
-        self.result_entries[3].insert(0, str(int(round(result_4))))
 
     def validate_entry(self, value):
         if value == "" or value == "-":
@@ -154,16 +147,16 @@ class TableEditor:
                 frame.grid(row=i + 1, column=j + 1, padx=1, pady=1)
                 entry = tk.Entry(frame, width=10, validate='key', validatecommand=self.vcmd, bd=0)
                 entry.pack(fill="both", expand=True)
-                # entry.insert(0, "0")
-                entry.insert(0, str(domyslne_koszty[i][j]))
+                entry.insert(0, "0")
+                # entry.insert(0, str(domyslne_koszty[i][j]))
                 row_entries.append(entry)
 
             frame = tk.Frame(self.table_frame)
             frame.grid(row=i + 1, column=self.cols + 1, padx=1, pady=1)
             entry = tk.Entry(frame, width=10, validate='key', validatecommand=self.vcmd)
             entry.pack(fill="both", expand=True)
-            # entry.insert(0, "0")
-            entry.insert(0, str(domyslne_podaze[i]))
+            entry.insert(0, "0")
+            # entry.insert(0, str(domyslne_podaze[i]))
             row_entries.append(entry)
 
             self.entries.append(row_entries)
@@ -174,8 +167,8 @@ class TableEditor:
             frame.grid(row=self.rows + 1, column=j + 1, padx=1, pady=1)
             entry = tk.Entry(frame, width=10, validate='key', validatecommand=self.vcmd)
             entry.pack(fill="both", expand=True)
-            # entry.insert(0, "0")
-            entry.insert(0, str(domyslne_popyt[j]))
+            entry.insert(0, "0")
+            # entry.insert(0, str(domyslne_popyt[j]))
             bottom_row.append(entry)
 
         label = tk.Label(self.table_frame, text="popyt", width=10, relief="ridge", bd=2, highlightbackground="red")
@@ -190,7 +183,7 @@ class TableEditor:
         self.rows += 1
         self.draw_table()
 
-        for i in range(len(current_data) - 1):  # bez ostatniego popytu
+        for i in range(len(current_data) - 1):
             for j in range(len(current_data[i])):
                 if i < len(self.entries) and j < len(self.entries[i]):
                     self.entries[i][j].delete(0, tk.END)
