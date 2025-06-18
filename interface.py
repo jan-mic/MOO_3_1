@@ -41,7 +41,7 @@ class TableEditor:
 
         self.result_labels = []
         self.result_entries = []
-        labels = ['Płn-zach kąt', 'Min w wierszu', 'Min w kolumnie', 'VAM']
+        labels = ['Płn-zach kąt', 'Min w wierszu', 'Min w macierzy', 'VAM']
         for i in range(len(labels)):
             row = tk.Frame(self.results_frame)
             row.pack(fill="x", pady=2)
@@ -93,10 +93,14 @@ class TableEditor:
         popyt_odbiorcy = [float(val) for val in data[-1]]
         podaz_dostawcy = [float(row[-1]) for row in data[:-1]]
 
-        result_1 = methods.method_1(macierz_kosztow, popyt_odbiorcy, podaz_dostawcy)
-        result_2 = methods.method_2(macierz_kosztow, popyt_odbiorcy, podaz_dostawcy)
-        result_3 = methods.method_3(macierz_kosztow, popyt_odbiorcy, podaz_dostawcy)
-        result_4 = methods.method_4(macierz_kosztow, popyt_odbiorcy, podaz_dostawcy)
+        result_1 = methods.method_1(macierz_kosztow.copy(), popyt_odbiorcy.copy(), podaz_dostawcy.copy())
+        result_2 = methods.method_2(macierz_kosztow.copy(), popyt_odbiorcy.copy(), podaz_dostawcy.copy())
+        result_3 = methods.method_3(macierz_kosztow.copy(), popyt_odbiorcy.copy(), podaz_dostawcy.copy())
+        result_4 = methods.method_4(macierz_kosztow.copy(), popyt_odbiorcy.copy(), podaz_dostawcy.copy())
+        # methods.method_22(macierz_kosztow.copy(), popyt_odbiorcy.copy(), podaz_dostawcy.copy())
+        # methods.method_33(macierz_kosztow.copy(), popyt_odbiorcy.copy(), podaz_dostawcy.copy())
+        # methods.metoda_min_w_kolumnie(macierz_kosztow.copy(), popyt_odbiorcy.copy(), podaz_dostawcy.copy())
+        # methods.method_222(macierz_kosztow.copy(), popyt_odbiorcy.copy(), podaz_dostawcy.copy())
 
         self.result_entries[0].delete(0, tk.END)
         self.result_entries[0].insert(0, str(int(round(result_1))))
@@ -122,12 +126,12 @@ class TableEditor:
         self.entries = []
 
         domyslne_koszty = [
-            [50, 40, 50, 20],
-            [40, 80, 70, 30],
-            [60, 40, 70, 80]
+            [10, 40, 50, 20, 0],
+            [20, 60, 40, 60, 0],
+            [30, 30, 30, 40, 0]
         ]
-        domyslne_podaze = [70, 50, 80]
-        domyslne_popyt = [40, 60, 50, 50]
+        domyslne_podaze = [300, 450, 800]
+        domyslne_popyt = [630, 160, 170, 340, 250]
 
         for j in range(self.cols):
             label = tk.Label(self.table_frame, text=f"O{j + 1}", width=10, relief="ridge", bd=2,
@@ -150,14 +154,16 @@ class TableEditor:
                 frame.grid(row=i + 1, column=j + 1, padx=1, pady=1)
                 entry = tk.Entry(frame, width=10, validate='key', validatecommand=self.vcmd, bd=0)
                 entry.pack(fill="both", expand=True)
-                entry.insert(0, "0")
+                # entry.insert(0, "0")
+                entry.insert(0, str(domyslne_koszty[i][j]))
                 row_entries.append(entry)
 
             frame = tk.Frame(self.table_frame)
             frame.grid(row=i + 1, column=self.cols + 1, padx=1, pady=1)
             entry = tk.Entry(frame, width=10, validate='key', validatecommand=self.vcmd)
             entry.pack(fill="both", expand=True)
-            entry.insert(0, "0")
+            # entry.insert(0, "0")
+            entry.insert(0, str(domyslne_podaze[i]))
             row_entries.append(entry)
 
             self.entries.append(row_entries)
@@ -168,7 +174,8 @@ class TableEditor:
             frame.grid(row=self.rows + 1, column=j + 1, padx=1, pady=1)
             entry = tk.Entry(frame, width=10, validate='key', validatecommand=self.vcmd)
             entry.pack(fill="both", expand=True)
-            entry.insert(0, "0")
+            # entry.insert(0, "0")
+            entry.insert(0, str(domyslne_popyt[j]))
             bottom_row.append(entry)
 
         label = tk.Label(self.table_frame, text="popyt", width=10, relief="ridge", bd=2, highlightbackground="red")
